@@ -4,7 +4,6 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -24,6 +23,7 @@ public class StockWatcher implements EntryPoint {
     private Label lastUpdatedLabel = new Label();
     private ArrayList<String> stocks = new ArrayList<String>();
     private StockPriceServiceAsync stockPriceSvc = GWT.create(StockPriceService.class);
+    private Label errorMsgLabel = new Label();
     private StockWatcherConstants constants = GWT.create(StockWatcherConstants.class);
     private StockWatcherMessages messages = GWT.create(StockWatcherMessages.class);
 
@@ -59,6 +59,10 @@ public class StockWatcher implements EntryPoint {
         addPanel.addStyleName("addPanel");
 
         // Assemble Main panel.
+        errorMsgLabel.setStyleName("errorMessage");
+        errorMsgLabel.setVisible(false);
+
+        mainPanel.add(errorMsgLabel);
         mainPanel.add(stocksFlexTable);
         mainPanel.add(addPanel);
         mainPanel.add(lastUpdatedLabel);
@@ -153,7 +157,14 @@ public class StockWatcher implements EntryPoint {
         // Set up the callback object.
         AsyncCallback<StockPrice[]> callback = new AsyncCallback<StockPrice[]>() {
             public void onFailure(Throwable caught) {
-                // TODO: Do something with errors.
+                // If the stock code is in the list of delisted codes, display an error message.
+                String details = caught.getMessage();
+                if (caught instanceof DelistedException) {
+                    details = "Company '" + ((DelistedException) caught).getSymbol() + "' was delisted";
+                }
+
+                errorMsgLabel.setText("Error: " + details);
+                errorMsgLabel.setVisible(true);
             }
 
             public void onSuccess(StockPrice[] result) {
@@ -177,6 +188,9 @@ public class StockWatcher implements EntryPoint {
 
         // Display timestamp showing last refresh.
         lastUpdatedLabel.setText(messages.lastUpdate(new Date()));
+
+        // Clear any errors.
+        errorMsgLabel.setVisible(false);
     }
 
     /**
