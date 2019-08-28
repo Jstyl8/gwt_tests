@@ -1,8 +1,8 @@
 package com.google.gwt.sample.stockwatcher.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Timer;
@@ -22,16 +22,24 @@ public class StockWatcher implements EntryPoint {
     private Button addStockButton = new Button("Add");
     private Label lastUpdatedLabel = new Label();
     private ArrayList<String> stocks = new ArrayList<String>();
+    private StockWatcherConstants constants = GWT.create(StockWatcherConstants.class);
+    private StockWatcherMessages messages = GWT.create(StockWatcherMessages.class);
+
 
     /**
      * Entry point method.
      */
     public void onModuleLoad() {
+        // Set the window title, the header text, and the Add button text.
+        Window.setTitle(constants.stockWatcher());
+        RootPanel.get("appTitle").add(new Label(constants.stockWatcher()));
+        addStockButton = new Button(constants.add());
+
         // Create table for stock data.
-        stocksFlexTable.setText(0, 0, "Symbol");
-        stocksFlexTable.setText(0, 1, "Price");
-        stocksFlexTable.setText(0, 2, "Change");
-        stocksFlexTable.setText(0, 3, "Remove");
+        stocksFlexTable.setText(0, 0, constants.symbol());
+        stocksFlexTable.setText(0, 1, constants.price());
+        stocksFlexTable.setText(0, 2, constants.change());
+        stocksFlexTable.setText(0, 3, constants.remove());
 
         // Add styles to elements in the stock list table.
         stocksFlexTable.setCellPadding(6);
@@ -95,7 +103,7 @@ public class StockWatcher implements EntryPoint {
 
         // Stock code must be between 1 and 10 chars that are numbers, letters, or dots.
         if (!symbol.matches("^[0-9A-Z\\.]{1,10}$")) {
-            Window.alert("'" + symbol + "' is not a valid symbol.");
+            Window.alert(messages.invalidSymbol(symbol));
             newSymbolTextBox.selectAll();
             return;
         }
@@ -161,10 +169,7 @@ public class StockWatcher implements EntryPoint {
         }
 
         // Display timestamp showing last refresh.
-        DateTimeFormat dateFormat = DateTimeFormat.getFormat(
-                DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM);
-        lastUpdatedLabel.setText("Last update : "
-                + dateFormat.format(new Date()));
+        lastUpdatedLabel.setText(messages.lastUpdate(new Date()));
     }
 
     /**
