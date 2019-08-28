@@ -19,7 +19,7 @@ public class StockWatcher implements EntryPoint {
     private FlexTable stocksFlexTable = new FlexTable();
     private HorizontalPanel addPanel = new HorizontalPanel();
     private TextBox newSymbolTextBox = new TextBox();
-    private Button addStockButton = new Button("Add");
+    private Button addStockButton;
     private Label lastUpdatedLabel = new Label();
     private ArrayList<String> stocks = new ArrayList<String>();
     private StockWatcherConstants constants = GWT.create(StockWatcherConstants.class);
